@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>#title#</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/styles.css"/>
+  </head>
+
+  <body>
+    <div class="card-container" onclick="this.classList.toggle('flipped')">
+        <div id="app">
+            <div class="card-face card-front">#Front</div>
+            <div class="card-face card-back">#Back</div>
+        </div>
+    </div>
+  </body>
+</html>

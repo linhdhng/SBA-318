@@ -1,16 +1,29 @@
 
 const express = require("express");
 const mongoose = require('mongoose');
-const card = require('./models/productModel');
-const db = require('./db/database.js');
+const card = require('./models/beginnerModel');
+const dotenv = require('dotenv');
+const intermediateRoute = require('./routes/intermediate');
+// const advancedRoute = require('./routes/advanced');
+
+dotenv.config();
 const app = express();
 
-const port = 5000;
+const port = process.env.port || 5000;
+
+mongoose.connect(process.env.MONGO_URI)
+        .then(() => {
+            console.log('Connected to MongoDB!');
+        }).catch((error) => {
+            console.log(error);
+        });
 
 // Middlewares
 app.use(express.json());
-app.use(express.static('./styles'));
+// Use simple CSS to style the rendered views.
+app.use(express.static("./styles"));
 
+//Create and render at least one view using a view template and template engine.
 const fs = require('fs');
 app.engine('page', (filePath, options, callback) => {
     fs.readFile(filePath, (err, content) => {
@@ -18,24 +31,25 @@ app.engine('page', (filePath, options, callback) => {
         const rendered = content
             .toString()
             .replaceAll("#word#", `${options.word}`)
+            .replace("#pronunciation#", `${options.pronunciation}` )
             .replace("#translate#", `${options.translate}`);
         return callback(null, rendered);
     });
 });
-
-//Create and render at least one view using a view template and template engine.
 app.set('views', './views');
 app.set('view engine', 'page');
 
 //Routes
+app.use('/api/intermediate', intermediateRoute)
+// app.use('/api/advanced', advancedRoute)
 app.get('/', (req, res) => {
     const data = {
         word: "привет",
         pronunciation: "privet",
-        translate: "hello",
+        translate: "Hello",
     };
 
-    res.render('index', data);
+    res.render('index', data); //Include a form within a rendered view that allows for interaction with your RESTful API.
 });
 
 app.get('/beginner', async(req, res) => {
@@ -47,7 +61,7 @@ app.get('/beginner', async(req, res) => {
     }
     })
 
-app.get("/data/:id", async(req, res) => {
+app.get("/beginner/:id", async(req, res) => {
     try {
         const {id} = req.params;
         const Card = await card.findById(id)
@@ -58,6 +72,7 @@ app.get("/data/:id", async(req, res) => {
     }
 })
 
+// POST request
 app.post('/new', async(req, res) => {
     try {
         const Card = await card.create(req.body);
@@ -68,7 +83,8 @@ app.post('/new', async(req, res) => {
     }
 });
 
-app.put('/data/:id', async(req,res) => {
+//PUT Request
+app.put('/beginner/:id', async(req,res) => {
     try {
     const {id} = req.params;
     const Card = await card.findByIdAndUpdate(id, req.body);
@@ -81,9 +97,10 @@ app.put('/data/:id', async(req,res) => {
         console.log(error.message);
         res.status(500).send('Not Found')
     }
-})
+});
 
-app.delete('/data/:id', async(req,res) => {
+// DELETE Request
+app.delete('/beginner/:id', async(req,res) => {
     try {
         const {id} = req.params;
         const Card = await card.findByIdAndDelete(id);
@@ -102,8 +119,7 @@ app.use((err, req, res, next) => {
     res.status(500).send("Seems like we messed up somewhere...");
 });
 // Querry parameter to filter data
-// express.static(root,[options]) //[req.param]
-//res.redirect('/redirect to a /location')
+
 app.listen(port, () => {
     console.log(`Server listening on ${port}`);
 });

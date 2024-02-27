@@ -2,31 +2,30 @@
 const express = require("express");
 const mongoose = require('mongoose');
 const card = require('./models/productModel');
-const db = require('./db/database');
+const db = require('./db/database.js');
 const app = express();
 
 const port = 5000;
 
 // Middlewares
 app.use(express.json());
-// app.use(express.static('./styles'));
+app.use(express.static('./styles'));
 
-// const fs = require('fs');
-// app.engine('page', (filePath, data, callback) => {
-//     fs.readFile(filePath, (err, content) => {
-//         if (err) return callback (err);
-
-//         const rendered = content
-//             .toString()
-//             .replaceAll("#word#", `${data.word}`)
-//             .replace("#translate#", `${data.translate}`);
-//         return callback(null, rendered);
-//     });
-// });
+const fs = require('fs');
+app.engine('page', (filePath, options, callback) => {
+    fs.readFile(filePath, (err, content) => {
+        if (err) return callback (err);
+        const rendered = content
+            .toString()
+            .replaceAll("#word#", `${options.word}`)
+            .replace("#translate#", `${options.translate}`);
+        return callback(null, rendered);
+    });
+});
 
 //Create and render at least one view using a view template and template engine.
-// app.set('views', './views')
-// app.set('view engine', 'page');
+app.set('views', './views');
+app.set('view engine', 'page');
 
 //Routes
 app.get('/', (req, res) => {
@@ -36,19 +35,30 @@ app.get('/', (req, res) => {
         translate: "hello",
     };
 
-    res.send(data);
+    res.render('index', data);
 });
 
-app.get('/data', async(req, res) => {
+app.get('/beginner', async(req, res) => {
     try {
-        const Card = await card.find({});
+        const beginner = await card.find({});
+        res.status(200).json(beginner);
+    } catch (error) {
+        res.status(500).send('Not Found')
+    }
+    })
+
+app.get("/data/:id", async(req, res) => {
+    try {
+        const {id} = req.params;
+        const Card = await card.findById(id)
         res.status(200).json(Card);
     } catch (error) {
+        console.log(error.message);
         res.status(500).send('Not Found')
     }
 })
 
-app.post('/translate', async(req, res) => {
+app.post('/new', async(req, res) => {
     try {
         const Card = await card.create(req.body);
         res.status(200).send(Card);
@@ -58,20 +68,36 @@ app.post('/translate', async(req, res) => {
     }
 });
 
-app.patch('translate/:id', async(req,res) => {
+app.put('/data/:id', async(req,res) => {
+    try {
     const {id} = req.params;
-    const Card = await Card.findByIdAndUpdate(id, req.body);
+    const Card = await card.findByIdAndUpdate(id, req.body);
     if(!Card) {
-        return res.status(400).send(`Cannot find any card with ${id}`);
+        return res.status(404).send(`Cannot find any card with ${_id}`);
     }
+    const updatedCard = await card.findById(id)
+    res.status(200).json(updatedCard);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send('Not Found')
+    }
+})
 
-    res.status(200).json(Card);
+app.delete('/data/:id', async(req,res) => {
+    try {
+        const {id} = req.params;
+        const Card = await card.findByIdAndDelete(id);
+        if(!card){
+            return res.status(404).send({message: `Cannot find card with id: ${id}`});
+        }
+        res.status(200).send(Card);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send('Not Found');
+    };
 })
 
 // Error handling
-app.use((req, res) => {
-    res.status(404).send('404 Not Found');
-});
 app.use((err, req, res, next) => {
     res.status(500).send("Seems like we messed up somewhere...");
 });

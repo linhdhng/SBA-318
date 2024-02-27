@@ -5,7 +5,11 @@ const schema = mongoose.Schema(
     {
         word: {
             type: String,
-            required: [true, 'Enter your name here']
+            required: true
+        },
+        pronunciation: {
+            type: String,
+            required: true,
         },
         translation: {
             type: String,

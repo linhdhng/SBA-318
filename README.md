@@ -10,4 +10,7 @@
   <li>Interact with a self-made API through HTML forms.</li>
 </ul>
 
-<p>This project uses Express Node and Mongoose to create a server appication that resemble flashcards for  language learning</p>
+<p>This project uses Express Node and Mongoose to create a server appication that resemble flashcards for  language learning</p><br>
+
+<h5>Need to work on:</h5>
+<p>Error appears when using functions from the controller</p>

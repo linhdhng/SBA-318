@@ -11,6 +11,7 @@
 </ul>
 
 <p>This project uses Express Node and Mongoose to create a server appication that resemble flashcards for  language learning</p><br>
+<img width="784" alt="Screenshot 2024-02-28 120951" src="https://github.com/linhdhng/SBA-318/assets/153128184/41977358-bf68-4309-8791-2b16b0d6c008">
 
 <h5>Need to work on:</h5>
 <p>Error appears when using functions from the controller</p>

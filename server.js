@@ -40,7 +40,7 @@ app.set('views', './views');
 app.set('view engine', 'page');
 
 //Routes
-app.use('/api/intermediate', intermediateRoute)
+app.use('/intermediate', intermediateRoute)
 // app.use('/api/advanced', advancedRoute)
 app.get('/', (req, res) => {
     const data = {
